@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Weather App
 
-## Getting Started
+A small Next.js weather demo for searching places and viewing current conditions plus forecasts. Built to deploy free on Vercel with no API keys.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Location search (Open-Meteo Geocoding)
+- Current weather, hourly forecast, and 7-day forecast
+- Loading / error / retry states
+- Simplified Chinese and English (local dictionaries, no remote CMS)
+- Responsive layout inspired by Apple Weather (mobile-first, centered on desktop)
+
+## Tech stack
+
+| Layer | Choice | Why |
+| --- | --- | --- |
+| Framework | Next.js App Router + TypeScript | Fits Vercel; Route Handlers for API edges |
+| Styling | Tailwind CSS 4 | Fast layout without a heavy UI kit |
+| Upstream weather | Open-Meteo | Free, no API key, good forecast + geocoding |
+| Server API | `/api/geocode`, `/api/weather` | Proxy upstream, validate with Zod, unify response shape |
+| Server state | TanStack Query | Cache, loading, retry for network data |
+| UI state | Zustand | Selected location, locale, recent searches |
+| Validation | Zod | Request/response contracts on the server |
+
+### Design trade-offs
+
+- **Query vs Zustand**: TanStack Query owns remote weather/geocode data. Zustand owns client preferences and selection. Keeps server cache out of a global bag of mutable state.
+- **Route Handler proxy**: Centralizes `{ code, data, msg }`, Zod checks, and upstream error mapping. The browser never talks to Open-Meteo directly.
+- **No API key**: Open-Meteo keeps deploy/demo friction at zero for interviewers.
+- **Local i18n only**: `zh` / `en` strings live in the repo—enough for the scope, no hot-update pipeline.
+- **IPv4 HTTPS helper**: Server calls Open-Meteo via Node `https` with `family: 4` (`lib/open-meteo/http.ts`) so geocoding does not hang on flaky IPv6 routes in some networks.
+
+## API contract
+
+All app APIs return:
+
+```json
+{
+  "code": 0,
+  "data": {},
+  "msg": "ok"
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| `code` | Meaning |
+| --- | --- |
+| `0` | Success |
+| `40001` | Invalid params |
+| `40401` | Location not found |
+| `50201` | Upstream Open-Meteo failed |
+| `50000` | Unknown / network / parse error |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Endpoints:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `GET /api/geocode?q=taipei`
+- `GET /api/weather?lat=25.05&lon=121.53&name=Taipei`
 
-## Learn More
+The client (`lib/api/client.ts`) throws `ApiError` when `code !== 0`. UI maps codes to localized messages via `getErrorMessage`.
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/api/          Route Handlers
+components/       UI (search, weather panels, providers)
+hooks/            TanStack Query hooks
+lib/api/          Response helpers + browser apiClient
+lib/open-meteo/   Upstream fetch + Zod schemas
+lib/i18n/         Local zh/en dictionaries
+lib/weather/      WMO code → copy / background mood
+stores/           Zustand app store
+types/            Shared API types
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Getting started
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+```bash
+pnpm build
+pnpm start
+```
+
+No environment variables are required.
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this repo to GitHub / GitLab / Bitbucket.
+2. Import the project in [Vercel](https://vercel.com/new).
+3. Use defaults (Framework: Next.js). Leave env vars empty.
+4. Deploy. The production URL works immediately for demos.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Default location
+
+First visit loads **Taipei**. Search to change city; recent selections persist in `localStorage`.

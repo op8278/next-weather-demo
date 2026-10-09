@@ -1,0 +1,25 @@
+import type { Messages } from "@/lib/i18n/types";
+
+export const zh: Messages = {
+  appTitle: "天气",
+  searchPlaceholder: "搜索城市",
+  searchEmpty: "输入城市名称开始搜索",
+  searchNoResults: "未找到相关地点",
+  loading: "加载中…",
+  retry: "重试",
+  errorGeneric: "出了点问题",
+  errorNetwork: "网络请求失败",
+  errorInvalidParams: "请求参数无效",
+  errorLocationNotFound: "未找到相关地点",
+  errorUpstream: "天气服务暂时不可用",
+  feelsLike: "体感",
+  humidity: "湿度",
+  wind: "风速",
+  hourly: "逐时预报",
+  daily: "7 日预报",
+  today: "今天",
+  now: "现在",
+  precip: "降水",
+  recent: "最近",
+  language: "语言",
+};

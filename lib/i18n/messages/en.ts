@@ -1,0 +1,25 @@
+import type { Messages } from "@/lib/i18n/types";
+
+export const en: Messages = {
+  appTitle: "Weather",
+  searchPlaceholder: "Search for a city",
+  searchEmpty: "Type a city name to search",
+  searchNoResults: "No locations found",
+  loading: "Loading…",
+  retry: "Try again",
+  errorGeneric: "Something went wrong",
+  errorNetwork: "Network request failed",
+  errorInvalidParams: "Invalid request",
+  errorLocationNotFound: "No locations found",
+  errorUpstream: "Weather service is unavailable",
+  feelsLike: "Feels like",
+  humidity: "Humidity",
+  wind: "Wind",
+  hourly: "Hourly Forecast",
+  daily: "7-Day Forecast",
+  today: "Today",
+  now: "Now",
+  precip: "Precip",
+  recent: "Recent",
+  language: "Language",
+};
