@@ -8,6 +8,7 @@ import { LocaleSwitcher } from "@/components/common/locale-switcher";
 import { CurrentWeather } from "@/components/weather/current-weather";
 import { DailyForecast } from "@/components/weather/daily-forecast";
 import { HourlyForecast } from "@/components/weather/hourly-forecast";
+import { useLocalizedLocation } from "@/hooks/use-localized-location";
 import { useWeather } from "@/hooks/use-weather";
 import { getErrorMessage, t } from "@/lib/i18n";
 import {
@@ -22,12 +23,16 @@ type WeatherShellProps = {
 
 export function WeatherShell({ location }: WeatherShellProps) {
   const [hydrated, setHydrated] = useState(false);
+  const [favoritePending, setFavoritePending] = useState(false);
   const locale = useAppStore((s) => s.locale);
   const favorites = useAppStore((s) => s.favorites);
   const toggleFavorite = useAppStore((s) => s.toggleFavorite);
+  const removeFavorite = useAppStore((s) => s.removeFavorite);
   const weather = useWeather(hydrated ? location : null);
 
   const favorited = favorites.some((item) => item.id === location.id);
+  const { label, isReady, isResolving, ensureLocalizedLocation } =
+    useLocalizedLocation(location);
 
   useEffect(() => {
     setHydrated(true);
@@ -38,11 +43,33 @@ export function WeatherShell({ location }: WeatherShellProps) {
     document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
   }, [hydrated, locale]);
 
+  async function handleToggleFavorite() {
+    if (favoritePending || isResolving) return;
+
+    // Unfavorite does not need a localized name.
+    if (favorited) {
+      removeFavorite(location.id);
+      return;
+    }
+
+    setFavoritePending(true);
+    try {
+      // Wait until current-locale city name is fetched, then write favorites.
+      const localized = await ensureLocalizedLocation();
+      toggleFavorite(localized);
+    } catch {
+      // Keep UX quiet; user can retry after label resolves.
+    } finally {
+      setFavoritePending(false);
+    }
+  }
+
   const mood = weather.data
     ? getWeatherMood(weather.data.current.weatherCode)
     : "clear";
   const isDay = weather.data?.current.isDay ?? true;
   const background = getBackgroundGradient(mood, isDay);
+  const favoriteBusy = favoritePending || (!favorited && !isReady);
 
   return (
     <div
@@ -61,15 +88,17 @@ export function WeatherShell({ location }: WeatherShellProps) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => toggleFavorite(location)}
+              onClick={() => void handleToggleFavorite()}
+              disabled={favoriteBusy}
               aria-pressed={favorited}
+              aria-busy={favoriteBusy}
               aria-label={
                 favorited ? t(locale, "unfavorite") : t(locale, "favorite")
               }
               title={
                 favorited ? t(locale, "unfavorite") : t(locale, "favorite")
               }
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg text-white transition hover:bg-white/16"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg text-white transition hover:bg-white/16 disabled:cursor-wait disabled:opacity-50"
             >
               {favorited ? "★" : "☆"}
             </button>
@@ -93,7 +122,9 @@ export function WeatherShell({ location }: WeatherShellProps) {
           {weather.data ? (
             <>
               <CurrentWeather
-                locationName={weather.data.location.name}
+                locationName={
+                  isResolving && !isReady ? `${label.name}…` : label.name
+                }
                 current={weather.data.current}
                 locale={locale}
               />

@@ -4,15 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useGeocode } from "@/hooks/use-geocode";
 import { getErrorMessage, t } from "@/lib/i18n";
+import { formatLocationLabel, getLocationLabel } from "@/lib/weather/location-label";
 import { useAppStore, type SelectedLocation } from "@/stores/app-store";
-
-function formatLocationLabel(item: {
-  name: string;
-  admin1?: string;
-  country: string;
-}) {
-  return [item.name, item.admin1, item.country].filter(Boolean).join(", ");
-}
 
 type LocationSearchProps = {
   onSelect: (location: SelectedLocation) => void;
@@ -26,7 +19,9 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const debounced = useDebouncedValue(query, 350);
-  const geocode = useGeocode(debounced, open);
+  // Only fetch while the dropdown is open — closing on locale change
+  // prevents an extra geocode when switching language.
+  const geocode = useGeocode(debounced, locale, open);
   const rootRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
@@ -40,6 +35,11 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, []);
 
+  // Locale switch should not keep an open search that re-queries immediately.
+  useEffect(() => {
+    setOpen(false);
+  }, [locale]);
+
   function selectLocation(location: SelectedLocation) {
     addRecent(location);
     onSelect(location);
@@ -47,8 +47,8 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
     setOpen(false);
   }
 
-  const showRecent = open && query.trim().length < 2 && recent.length > 0;
-  const showResults = open && query.trim().length >= 2;
+  const showRecent = open && query.trim().length < 1 && recent.length > 0;
+  const showResults = open && query.trim().length >= 1;
 
   return (
     <div ref={rootRef} className="relative w-full">
@@ -91,7 +91,7 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
                       className="w-full rounded-xl px-3 py-2.5 text-left text-sm text-white/90 transition hover:bg-white/10"
                       onClick={() => selectLocation(item)}
                     >
-                      {formatLocationLabel(item)}
+                      {formatLocationLabel(getLocationLabel(item, locale))}
                     </button>
                   </li>
                 ))}
@@ -135,10 +135,21 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
                             longitude: item.longitude,
                             country: item.country,
                             admin1: item.admin1,
+                            labels: {
+                              [locale]: {
+                                name: item.name,
+                                country: item.country,
+                                admin1: item.admin1,
+                              },
+                            },
                           })
                         }
                       >
-                        {formatLocationLabel(item)}
+                        {formatLocationLabel({
+                          name: item.name,
+                          country: item.country,
+                          admin1: item.admin1,
+                        })}
                       </button>
                     </li>
                   ))}
@@ -148,7 +159,7 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
               {!geocode.isFetching &&
               !geocode.isError &&
               !geocode.isSuccess &&
-              debounced.trim().length < 2 ? (
+              debounced.trim().length < 1 ? (
                 <p className="px-3 py-3 text-sm text-white/65">
                   {t(locale, "searchEmpty")}
                 </p>

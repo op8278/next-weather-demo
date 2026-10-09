@@ -1,13 +1,19 @@
 import type { SelectedLocation } from "@/stores/app-store";
+import { getLocationLabel } from "@/lib/weather/location-label";
+import type { Locale } from "@/lib/i18n/types";
 
-export function buildWeatherHref(location: SelectedLocation): string {
+export function buildWeatherHref(
+  location: SelectedLocation,
+  locale: Locale = "en",
+): string {
+  const label = getLocationLabel(location, locale);
   const params = new URLSearchParams({
     lat: String(location.latitude),
     lon: String(location.longitude),
-    name: location.name,
+    name: label.name,
   });
-  if (location.country) params.set("country", location.country);
-  if (location.admin1) params.set("admin1", location.admin1);
+  if (label.country) params.set("country", label.country);
+  if (label.admin1) params.set("admin1", label.admin1);
   return `/weather/${location.id}?${params.toString()}`;
 }
 

@@ -1,11 +1,13 @@
-import type { GeocodeData, WeatherData } from "@/types/api";
+import type { GeocodeData, LocationResult, WeatherData } from "@/types/api";
 import { httpsGetJson } from "@/lib/open-meteo/http";
 import {
   openMeteoForecastSchema,
   openMeteoGeocodeSchema,
+  openMeteoLocationSchema,
 } from "@/lib/open-meteo/schemas";
 
-const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
+const GEOCODE_SEARCH_URL = "https://geocoding-api.open-meteo.com/v1/search";
+const GEOCODE_GET_URL = "https://geocoding-api.open-meteo.com/v1/get";
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
 export class UpstreamError extends Error {
@@ -15,11 +17,34 @@ export class UpstreamError extends Error {
   }
 }
 
-export async function searchLocations(query: string): Promise<GeocodeData> {
-  const url = new URL(GEOCODE_URL);
+function toLocationResult(item: {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  country: string;
+  admin1?: string;
+  timezone?: string;
+}): LocationResult {
+  return {
+    id: item.id,
+    name: item.name,
+    latitude: item.latitude,
+    longitude: item.longitude,
+    country: item.country,
+    admin1: item.admin1,
+    timezone: item.timezone,
+  };
+}
+
+export async function searchLocations(
+  query: string,
+  language = "en",
+): Promise<GeocodeData> {
+  const url = new URL(GEOCODE_SEARCH_URL);
   url.searchParams.set("name", query);
   url.searchParams.set("count", "8");
-  url.searchParams.set("language", "en");
+  url.searchParams.set("language", language);
   url.searchParams.set("format", "json");
 
   let json: unknown;
@@ -34,17 +59,44 @@ export async function searchLocations(query: string): Promise<GeocodeData> {
     throw new UpstreamError("Invalid geocoding response");
   }
 
-  const results = (parsed.data.results ?? []).map((item) => ({
-    id: item.id,
-    name: item.name,
-    latitude: item.latitude,
-    longitude: item.longitude,
-    country: item.country,
-    admin1: item.admin1,
-    timezone: item.timezone,
-  }));
+  return {
+    results: (parsed.data.results ?? []).map(toLocationResult),
+  };
+}
 
-  return { results };
+/** Exact lookup by Open-Meteo / GeoNames location id (no fuzzy name match). */
+export async function getLocationById(
+  id: number,
+  language = "en",
+): Promise<LocationResult | null> {
+  const url = new URL(GEOCODE_GET_URL);
+  url.searchParams.set("id", String(id));
+  url.searchParams.set("language", language);
+  url.searchParams.set("format", "json");
+
+  let json: unknown;
+  try {
+    json = await httpsGetJson(url.toString());
+  } catch {
+    throw new UpstreamError("Failed to reach geocoding service");
+  }
+
+  // Open-Meteo returns an error object when the id does not exist.
+  if (
+    json &&
+    typeof json === "object" &&
+    "error" in json &&
+    (json as { error?: boolean }).error
+  ) {
+    return null;
+  }
+
+  const parsed = openMeteoLocationSchema.safeParse(json);
+  if (!parsed.success) {
+    throw new UpstreamError("Invalid location lookup response");
+  }
+
+  return toLocationResult(parsed.data);
 }
 
 export async function fetchForecast(params: {

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/types";
+import { getLocationLabel } from "@/lib/weather/location-label";
 import { buildWeatherHref } from "@/lib/weather/location-url";
 import {
   getBackgroundGradient,
@@ -37,7 +38,7 @@ export function CityCard({
   onNavigate,
 }: CityCardProps) {
   const router = useRouter();
-  const href = buildWeatherHref(location);
+  const href = buildWeatherHref(location, locale);
 
   const [offset, setOffset] = useState(0);
   const offsetRef = useRef(0);
@@ -51,6 +52,7 @@ export function CityCard({
   }
 
   const weather = weatherQuery.data;
+  const label = getLocationLabel(location, locale);
   const mood = weather
     ? getWeatherMood(weather.current.weatherCode)
     : "cloudy";
@@ -157,7 +159,7 @@ export function CityCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h2 className="truncate text-2xl font-medium tracking-tight">
-                {location.name}
+                {label.name}
               </h2>
               <p className="mt-0.5 text-sm text-white/75">
                 {weatherQuery.isLoading
@@ -176,7 +178,7 @@ export function CityCard({
 
           <div className="mt-6 flex items-end justify-between gap-3 text-sm text-white/80">
             <span className="truncate text-white/65">
-              {[location.admin1, location.country].filter(Boolean).join(", ")}
+              {[label.admin1, label.country].filter(Boolean).join(", ")}
             </span>
             <span className="tabular-nums">
               {t(locale, "high")}{" "}

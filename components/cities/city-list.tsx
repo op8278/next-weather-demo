@@ -6,6 +6,7 @@ import { CityCard } from "@/components/cities/city-card";
 import { LocaleSwitcher } from "@/components/common/locale-switcher";
 import { LocationSearch } from "@/components/search/location-search";
 import { useFavoriteWeathers } from "@/hooks/use-favorite-weathers";
+import { useResolveLocationLabels } from "@/hooks/use-resolve-location-labels";
 import { t } from "@/lib/i18n";
 import { buildWeatherHref } from "@/lib/weather/location-url";
 import { useAppStore, type SelectedLocation } from "@/stores/app-store";
@@ -19,6 +20,7 @@ export function CityList() {
   const favorites = useAppStore((s) => s.favorites);
   const removeFavorite = useAppStore((s) => s.removeFavorite);
   const weatherQueries = useFavoriteWeathers(hydrated ? favorites : []);
+  useResolveLocationLabels();
 
   useEffect(() => {
     setHydrated(true);
@@ -38,7 +40,7 @@ export function CityList() {
 
   function handleSelect(location: SelectedLocation) {
     setOpenSwipeId(null);
-    router.push(buildWeatherHref(location));
+    router.push(buildWeatherHref(location, locale));
   }
 
   return (

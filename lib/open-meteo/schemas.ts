@@ -1,8 +1,14 @@
 import { z } from "zod";
 
-export const geocodeQuerySchema = z.object({
-  q: z.string().trim().min(1).max(100),
-});
+export const geocodeQuerySchema = z
+  .object({
+    q: z.string().trim().min(1).max(100).optional(),
+    id: z.coerce.number().int().positive().optional(),
+    lang: z.enum(["en", "zh"]).default("en"),
+  })
+  .refine((value) => Boolean(value.q) || Boolean(value.id), {
+    message: "Either q or id is required",
+  });
 
 export const weatherQuerySchema = z.object({
   lat: z.coerce.number().min(-90).max(90),
@@ -10,21 +16,22 @@ export const weatherQuerySchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
 });
 
-export const openMeteoGeocodeSchema = z.object({
-  results: z
-    .array(
-      z.object({
-        id: z.number(),
-        name: z.string(),
-        latitude: z.number(),
-        longitude: z.number(),
-        country: z.string().optional().default(""),
-        admin1: z.string().optional(),
-        timezone: z.string().optional(),
-      }),
-    )
-    .optional(),
+const openMeteoLocationFields = z.object({
+  id: z.number(),
+  name: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  country: z.string().optional().default(""),
+  admin1: z.string().optional(),
+  timezone: z.string().optional(),
 });
+
+export const openMeteoGeocodeSchema = z.object({
+  results: z.array(openMeteoLocationFields).optional(),
+});
+
+/** `/v1/get` returns a single location object (not wrapped in results). */
+export const openMeteoLocationSchema = openMeteoLocationFields;
 
 export const openMeteoForecastSchema = z.object({
   latitude: z.number(),
