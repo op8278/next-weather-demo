@@ -1,10 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ErrorState } from "@/components/common/error-state";
 import { LoadingState } from "@/components/common/loading-state";
 import { LocaleSwitcher } from "@/components/common/locale-switcher";
-import { LocationSearch } from "@/components/search/location-search";
 import { CurrentWeather } from "@/components/weather/current-weather";
 import { DailyForecast } from "@/components/weather/daily-forecast";
 import { HourlyForecast } from "@/components/weather/hourly-forecast";
@@ -14,13 +14,20 @@ import {
   getBackgroundGradient,
   getWeatherMood,
 } from "@/lib/weather/map-codes";
-import { useAppStore } from "@/stores/app-store";
+import { useAppStore, type SelectedLocation } from "@/stores/app-store";
 
-export function WeatherShell() {
+type WeatherShellProps = {
+  location: SelectedLocation;
+};
+
+export function WeatherShell({ location }: WeatherShellProps) {
   const [hydrated, setHydrated] = useState(false);
   const locale = useAppStore((s) => s.locale);
-  const location = useAppStore((s) => s.location);
+  const favorites = useAppStore((s) => s.favorites);
+  const toggleFavorite = useAppStore((s) => s.toggleFavorite);
   const weather = useWeather(hydrated ? location : null);
+
+  const favorited = favorites.some((item) => item.id === location.id);
 
   useEffect(() => {
     setHydrated(true);
@@ -44,15 +51,31 @@ export function WeatherShell() {
     >
       <div className="mx-auto flex min-h-full w-full max-w-md flex-col px-4 pb-8 pt-5 sm:max-w-lg sm:px-6 sm:pt-8">
         <header className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium tracking-wide text-white/70">
-            {t(locale, "appTitle")}
-          </p>
-          <LocaleSwitcher />
-        </header>
+          <Link
+            href="/"
+            className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white/90 transition hover:bg-white/16"
+          >
+            ← {t(locale, "backToList")}
+          </Link>
 
-        <div className="mt-4">
-          <LocationSearch />
-        </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => toggleFavorite(location)}
+              aria-pressed={favorited}
+              aria-label={
+                favorited ? t(locale, "unfavorite") : t(locale, "favorite")
+              }
+              title={
+                favorited ? t(locale, "unfavorite") : t(locale, "favorite")
+              }
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg text-white transition hover:bg-white/16"
+            >
+              {favorited ? "★" : "☆"}
+            </button>
+            <LocaleSwitcher />
+          </div>
+        </header>
 
         <main className="mt-2 flex-1">
           {!hydrated || weather.isLoading ? (

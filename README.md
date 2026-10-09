@@ -1,14 +1,30 @@
 # Weather App
 
-A small Next.js weather demo for searching places and viewing current conditions plus forecasts. Built to deploy free on Vercel with no API keys.
+A small Next.js weather demo for searching places, saving cities, and viewing forecasts. Built to deploy free on Vercel with no API keys.
 
 ## Features
 
-- Location search (Open-Meteo Geocoding)
-- Current weather, hourly forecast, and 7-day forecast
+- Favorites city list (iOS Weather–style cards)
+- Weather detail page with hourly + 7-day forecast
+- Add / remove cities from the list (persisted in `localStorage`)
+- Location search via Open-Meteo Geocoding
 - Loading / error / retry states
-- Simplified Chinese and English (local dictionaries, no remote CMS)
-- Responsive layout inspired by Apple Weather (mobile-first, centered on desktop)
+- Simplified Chinese and English (local dictionaries)
+- Responsive layout inspired by Apple Weather
+
+## Pages
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Saved cities list + search |
+| `/weather/[id]?lat=&lon=&name=` | Weather detail for a city |
+
+Flow:
+
+1. Open `/` to see favorited cities (defaults to Taipei).
+2. Search a city → opens detail (does **not** auto-favorite).
+3. Tap ★ on detail to add/remove from the list.
+4. On the list, swipe a card left to delete.
 
 ## Tech stack
 
@@ -19,16 +35,16 @@ A small Next.js weather demo for searching places and viewing current conditions
 | Upstream weather | Open-Meteo | Free, no API key, good forecast + geocoding |
 | Server API | `/api/geocode`, `/api/weather` | Proxy upstream, validate with Zod, unify response shape |
 | Server state | TanStack Query | Cache, loading, retry for network data |
-| UI state | Zustand | Selected location, locale, recent searches |
+| UI state | Zustand | Favorites, locale, recent searches |
 | Validation | Zod | Request/response contracts on the server |
 
 ### Design trade-offs
 
-- **Query vs Zustand**: TanStack Query owns remote weather/geocode data. Zustand owns client preferences and selection. Keeps server cache out of a global bag of mutable state.
-- **Route Handler proxy**: Centralizes `{ code, data, msg }`, Zod checks, and upstream error mapping. The browser never talks to Open-Meteo directly.
-- **No API key**: Open-Meteo keeps deploy/demo friction at zero for interviewers.
-- **Local i18n only**: `zh` / `en` strings live in the repo—enough for the scope, no hot-update pipeline.
-- **IPv4 HTTPS helper**: Server calls Open-Meteo via Node `https` with `family: 4` (`lib/open-meteo/http.ts`) so geocoding does not hang on flaky IPv6 routes in some networks.
+- **Query vs Zustand**: TanStack Query owns remote weather/geocode data. Zustand owns favorites and locale. Detail pages are driven by the route, not a single global “current city”.
+- **Route Handler proxy**: Centralizes `{ code, data, msg }`, Zod checks, and upstream error mapping.
+- **No API key**: Open-Meteo keeps deploy/demo friction at zero.
+- **Local i18n only**: `zh` / `en` strings live in the repo.
+- **IPv4 HTTPS helper**: Server calls Open-Meteo via Node `https` with `family: 4` so geocoding does not hang on flaky IPv6 routes.
 
 ## API contract
 
@@ -60,15 +76,16 @@ The client (`lib/api/client.ts`) throws `ApiError` when `code !== 0`. UI maps co
 ## Project structure
 
 ```
-app/api/          Route Handlers
-components/       UI (search, weather panels, providers)
-hooks/            TanStack Query hooks
-lib/api/          Response helpers + browser apiClient
-lib/open-meteo/   Upstream fetch + Zod schemas
-lib/i18n/         Local zh/en dictionaries
-lib/weather/      WMO code → copy / background mood
-stores/           Zustand app store
-types/            Shared API types
+app/                  Pages + Route Handlers
+components/cities/    Favorites list UI
+components/weather/   Detail weather panels
+hooks/                TanStack Query hooks
+lib/api/              Response helpers + browser apiClient
+lib/open-meteo/       Upstream fetch + Zod schemas
+lib/i18n/             Local zh/en dictionaries
+lib/weather/          WMO codes, URL helpers, weather fetch
+stores/               Zustand app store (favorites persist)
+types/                Shared API types
 ```
 
 ## Getting started
@@ -94,6 +111,6 @@ No environment variables are required.
 3. Use defaults (Framework: Next.js). Leave env vars empty.
 4. Deploy. The production URL works immediately for demos.
 
-## Default location
+## Persistence
 
-First visit loads **Taipei**. Search to change city; recent selections persist in `localStorage`.
+Favorites, locale, and recent searches are stored in `localStorage` under `weather-app-store` via Zustand `persist`.

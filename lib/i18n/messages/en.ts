@@ -2,6 +2,7 @@ import type { Messages } from "@/lib/i18n/types";
 
 export const en: Messages = {
   appTitle: "Weather",
+  citiesTitle: "Weather",
   searchPlaceholder: "Search for a city",
   searchEmpty: "Type a city name to search",
   searchNoResults: "No locations found",
@@ -22,4 +23,11 @@ export const en: Messages = {
   precip: "Precip",
   recent: "Recent",
   language: "Language",
+  favorite: "Add to List",
+  unfavorite: "Remove from List",
+  emptyFavorites: "No cities yet. Search to preview weather, then add it to your list.",
+  backToList: "Cities",
+  removeCity: "Delete",
+  high: "H",
+  low: "L",
 };

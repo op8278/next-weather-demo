@@ -1,5 +1,5 @@
-import { WeatherShell } from "@/components/weather/weather-shell";
+import { CityList } from "@/components/cities/city-list";
 
 export default function Home() {
-  return <WeatherShell />;
+  return <CityList />;
 }

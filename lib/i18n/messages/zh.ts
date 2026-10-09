@@ -2,6 +2,7 @@ import type { Messages } from "@/lib/i18n/types";
 
 export const zh: Messages = {
   appTitle: "天气",
+  citiesTitle: "天气",
   searchPlaceholder: "搜索城市",
   searchEmpty: "输入城市名称开始搜索",
   searchNoResults: "未找到相关地点",
@@ -22,4 +23,11 @@ export const zh: Messages = {
   precip: "降水",
   recent: "最近",
   language: "语言",
+  favorite: "加入列表",
+  unfavorite: "移出列表",
+  emptyFavorites: "还没有城市。先搜索预览天气，再加入列表。",
+  backToList: "城市",
+  removeCity: "删除",
+  high: "高",
+  low: "低",
 };

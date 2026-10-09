@@ -2,6 +2,7 @@ export type Locale = "zh" | "en";
 
 export type MessageKey =
   | "appTitle"
+  | "citiesTitle"
   | "searchPlaceholder"
   | "searchEmpty"
   | "searchNoResults"
@@ -21,6 +22,13 @@ export type MessageKey =
   | "now"
   | "precip"
   | "recent"
-  | "language";
+  | "language"
+  | "favorite"
+  | "unfavorite"
+  | "emptyFavorites"
+  | "backToList"
+  | "removeCity"
+  | "high"
+  | "low";
 
 export type Messages = Record<MessageKey, string>;

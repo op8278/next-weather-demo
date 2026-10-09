@@ -14,10 +14,14 @@ function formatLocationLabel(item: {
   return [item.name, item.admin1, item.country].filter(Boolean).join(", ");
 }
 
-export function LocationSearch() {
+type LocationSearchProps = {
+  onSelect: (location: SelectedLocation) => void;
+};
+
+export function LocationSearch({ onSelect }: LocationSearchProps) {
   const locale = useAppStore((s) => s.locale);
   const recent = useAppStore((s) => s.recent);
-  const setLocation = useAppStore((s) => s.setLocation);
+  const addRecent = useAppStore((s) => s.addRecent);
 
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -37,7 +41,8 @@ export function LocationSearch() {
   }, []);
 
   function selectLocation(location: SelectedLocation) {
-    setLocation(location);
+    addRecent(location);
+    onSelect(location);
     setQuery("");
     setOpen(false);
   }
@@ -63,14 +68,14 @@ export function LocationSearch() {
         placeholder={t(locale, "searchPlaceholder")}
         aria-controls={listId}
         aria-expanded={open}
-        className="w-full rounded-2xl border border-white/20 bg-white/12 px-4 py-3 text-sm text-white outline-none backdrop-blur-sm placeholder:text-white/55 focus:border-white/40 focus:bg-white/16"
+        className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white outline-none backdrop-blur-sm placeholder:text-white/50 focus:border-white/35 focus:bg-white/14"
       />
 
       {showRecent || showResults ? (
         <div
           id={listId}
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 overflow-hidden rounded-2xl border border-white/15 bg-slate-900/90 shadow-xl backdrop-blur-md"
+          className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 overflow-hidden rounded-2xl border border-white/15 bg-slate-900/92 shadow-xl backdrop-blur-md"
         >
           {showRecent ? (
             <div className="px-3 py-2">
