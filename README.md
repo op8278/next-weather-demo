@@ -21,7 +21,7 @@ A small Next.js weather demo for searching places, saving cities, and viewing fo
 
 Flow:
 
-1. Open `/` to see favorited cities (defaults to Taipei).
+1. Open `/` to see favorited cities (starts empty).
 2. Search a city → opens detail (does **not** auto-favorite).
 3. Tap ★ on detail to add/remove from the list.
 4. On the list, swipe a card left to delete.

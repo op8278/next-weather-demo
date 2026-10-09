@@ -10,15 +10,6 @@ export type SelectedLocation = Pick<
   "id" | "name" | "latitude" | "longitude" | "country" | "admin1"
 >;
 
-const DEFAULT_LOCATION: SelectedLocation = {
-  id: 1668341,
-  name: "Taipei",
-  latitude: 25.0478,
-  longitude: 121.5319,
-  country: "Taiwan",
-  admin1: "Taipei",
-};
-
 type AppState = {
   locale: Locale;
   recent: SelectedLocation[];
@@ -36,7 +27,7 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       locale: "en",
       recent: [],
-      favorites: [DEFAULT_LOCATION],
+      favorites: [],
       setLocale: (locale) => set({ locale }),
       addRecent: (location) => {
         const recent = [
@@ -72,18 +63,14 @@ export const useAppStore = create<AppState>()(
       }),
       merge: (persisted, current) => {
         const stored = (persisted ?? {}) as Partial<AppState>;
-        const favorites =
-          Array.isArray(stored.favorites) && stored.favorites.length > 0
-            ? stored.favorites
-            : current.favorites;
         return {
           ...current,
           ...stored,
-          favorites,
+          favorites: Array.isArray(stored.favorites)
+            ? stored.favorites
+            : current.favorites,
         };
       },
     },
   ),
 );
-
-export { DEFAULT_LOCATION };
