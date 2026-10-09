@@ -147,16 +147,13 @@ export async function fetchForecast(params: {
   }
 
   const data = parsed.data;
-  const now = new Date(data.current.time);
-  const hourly = data.hourly.time
-    .map((time, index) => ({
-      time,
-      temperature: data.hourly.temperature_2m[index]!,
-      weatherCode: data.hourly.weather_code[index]!,
-      isDay: data.hourly.is_day[index] === 1,
-    }))
-    .filter((item) => new Date(item.time) >= now)
-    .slice(0, 24);
+  // Keep full-day hourly (incl. past hours) so today's day-sheet curve has data.
+  const hourly = data.hourly.time.map((time, index) => ({
+    time,
+    temperature: data.hourly.temperature_2m[index]!,
+    weatherCode: data.hourly.weather_code[index]!,
+    isDay: data.hourly.is_day[index] === 1,
+  }));
 
   const daily = data.daily.time.map((date, index) => ({
     date,

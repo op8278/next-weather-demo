@@ -23,7 +23,7 @@ export function LocaleSwitcher() {
             key={option}
             type="button"
             onClick={() => setLocale(option)}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            className={`rounded-full px-3 py-1 text-xs font-medium transition cursor-pointer ${
               active
                 ? "bg-white text-slate-800"
                 : "text-white/80 hover:text-white"

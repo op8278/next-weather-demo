@@ -98,7 +98,7 @@ export function WeatherShell({ location }: WeatherShellProps) {
               title={
                 favorited ? t(locale, "unfavorite") : t(locale, "favorite")
               }
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg text-white transition hover:bg-white/16 disabled:cursor-wait disabled:opacity-50"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg text-white transition hover:bg-white/16 disabled:cursor-wait disabled:opacity-50 cursor-pointer"
             >
               {favorited ? "★" : "☆"}
             </button>
@@ -132,9 +132,11 @@ export function WeatherShell({ location }: WeatherShellProps) {
                 items={weather.data.hourly}
                 locale={locale}
                 timezone={weather.data.location.timezone}
+                fromTime={weather.data.current.time}
               />
               <DailyForecast
                 items={weather.data.daily}
+                hourly={weather.data.hourly}
                 locale={locale}
                 timezone={weather.data.location.timezone}
               />

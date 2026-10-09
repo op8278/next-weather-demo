@@ -2,10 +2,17 @@
 
 A small Next.js weather demo for searching places, saving cities, and viewing forecasts. Built to deploy free on Vercel with no API keys.
 
+## Demo
+
+Live demo: [https://next-weath˝er-demo.vercel.app/](https://next-weather-demo.vercel.app/)
+
 ## Features
 
 - Favorites city list (iOS Weather–style cards)
 - Weather detail page with hourly + 7-day forecast
+- Hourly forecast: list / temperature-curve tabs for the current day
+- 7-day forecast: tap a day to open a bottom sheet with that day’s temperature curve
+- Localized city labels (`zh` / `en`) resolved by Open-Meteo location id (not fuzzy name search)
 - Add / remove cities from the list (persisted in `localStorage`)
 - Location search via Open-Meteo Geocoding
 - Loading / error / retry states
@@ -68,7 +75,8 @@ All app APIs return:
 
 Endpoints:
 
-- `GET /api/geocode?q=taipei`
+- `GET /api/geocode?q=taipei` — search by name
+- `GET /api/geocode?id=1796236&lang=zh` — exact lookup by location id (localized label)
 - `GET /api/weather?lat=25.05&lon=121.53&name=Taipei`
 
 The client (`lib/api/client.ts`) throws `ApiError` when `code !== 0`. UI maps codes to localized messages via `getErrorMessage`.
