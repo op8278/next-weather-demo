@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { TemperatureCurve } from "@/components/weather/temperature-curve";
+import { WeatherIcon } from "@/components/weather/weather-icon";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/types";
+import { getWeatherDescription } from "@/lib/weather/map-codes";
 import type { DailyForecastItem, HourlyForecastItem } from "@/types/api";
 
 type DayForecastSheetProps = {
@@ -64,16 +66,25 @@ export function DayForecastSheet({
           <div>
             <h2
               id="day-forecast-sheet-title"
-              className="text-lg font-medium text-white"
+              className="flex items-center gap-2 text-lg font-medium text-white"
             >
-              {title}
+              <WeatherIcon
+                code={day.weatherCode}
+                locale={locale}
+                size={28}
+              />
+              <span>{title}</span>
             </h2>
-            <p className="mt-1 text-sm tabular-nums text-white/70">
-              <span className="text-white/90">
-                {t(locale, "high")} {Math.round(day.tempMax)}°
+            <p className="mt-1 text-sm text-white/70">
+              <span className="text-white/85">
+                {getWeatherDescription(day.weatherCode, locale)}
               </span>
               <span className="mx-2 text-white/30">·</span>
-              <span>
+              <span className="tabular-nums">
+                {t(locale, "high")} {Math.round(day.tempMax)}°
+              </span>
+              <span className="mx-1.5 text-white/30">/</span>
+              <span className="tabular-nums">
                 {t(locale, "low")} {Math.round(day.tempMin)}°
               </span>
             </p>

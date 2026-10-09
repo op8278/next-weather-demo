@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
+import { WeatherIcon } from "@/components/weather/weather-icon";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/types";
 import { getLocationLabel } from "@/lib/weather/location-label";
@@ -161,11 +162,26 @@ export function CityCard({
               <h2 className="truncate text-2xl font-medium tracking-tight">
                 {label.name}
               </h2>
-              <p className="mt-0.5 text-sm text-white/75">
+              <p className="mt-0.5 flex items-center gap-1.5 text-sm text-white/75">
                 {weatherQuery.isLoading
                   ? t(locale, "loading")
                   : weather
-                    ? getWeatherDescription(weather.current.weatherCode, locale)
+                    ? (
+                        <>
+                          <WeatherIcon
+                            code={weather.current.weatherCode}
+                            locale={locale}
+                            isDay={weather.current.isDay}
+                            size={20}
+                          />
+                          <span className="truncate">
+                            {getWeatherDescription(
+                              weather.current.weatherCode,
+                              locale,
+                            )}
+                          </span>
+                        </>
+                      )
                     : weatherQuery.isError
                       ? t(locale, "errorGeneric")
                       : "—"}

@@ -4,7 +4,7 @@ A small Next.js weather demo for searching places, saving cities, and viewing fo
 
 ## Demo
 
-Live demo: [https://next-weath˝er-demo.vercel.app/](https://next-weather-demo.vercel.app/)
+Live demo: [https://next-weather-demo.vercel.app/](https://next-weather-demo.vercel.app/)
 
 ## Features
 

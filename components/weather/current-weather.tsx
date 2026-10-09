@@ -1,5 +1,6 @@
 "use client";
 
+import { WeatherIcon } from "@/components/weather/weather-icon";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/types";
 import { getWeatherDescription } from "@/lib/weather/map-codes";
@@ -28,7 +29,15 @@ export function CurrentWeather({
       <p className="mt-1 text-7xl font-thin tracking-tighter sm:text-8xl">
         {temp}°
       </p>
-      <p className="mt-1 text-lg text-white/85">{description}</p>
+      <p className="mt-1 flex items-center justify-center gap-2 text-lg text-white/85">
+        <WeatherIcon
+          code={current.weatherCode}
+          locale={locale}
+          isDay={current.isDay}
+          size={28}
+        />
+        <span>{description}</span>
+      </p>
       <p className="mt-1 text-sm text-white/70">
         {t(locale, "feelsLike")} {feels}°
       </p>

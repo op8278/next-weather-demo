@@ -47,6 +47,37 @@ export function getWeatherDescription(
 
 export type WeatherMood = "clear" | "cloudy" | "fog" | "rain" | "snow" | "storm";
 
+export type WeatherIconKind =
+  | "clear"
+  | "mainlyClear"
+  | "partlyCloudy"
+  | "overcast"
+  | "fog"
+  | "drizzle"
+  | "rain"
+  | "freezingRain"
+  | "snow"
+  | "showers"
+  | "snowShowers"
+  | "thunderstorm"
+  | "unknown";
+
+export function getWeatherIconKind(code: number): WeatherIconKind {
+  if (code === 0) return "clear";
+  if (code === 1) return "mainlyClear";
+  if (code === 2) return "partlyCloudy";
+  if (code === 3) return "overcast";
+  if (code === 45 || code === 48) return "fog";
+  if (code >= 51 && code <= 57) return "drizzle";
+  if (code === 66 || code === 67) return "freezingRain";
+  if (code >= 61 && code <= 65) return "rain";
+  if (code >= 80 && code <= 82) return "showers";
+  if (code >= 71 && code <= 77) return "snow";
+  if (code === 85 || code === 86) return "snowShowers";
+  if (code >= 95) return "thunderstorm";
+  return "unknown";
+}
+
 export function getWeatherMood(code: number): WeatherMood {
   if (code === 0 || code === 1) return "clear";
   if (code === 2 || code === 3) return "cloudy";

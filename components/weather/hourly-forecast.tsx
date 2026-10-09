@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TemperatureCurve } from "@/components/weather/temperature-curve";
+import { WeatherIcon } from "@/components/weather/weather-icon";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/types";
 import {
@@ -100,16 +101,18 @@ export function HourlyForecast({
                 <li
                   key={item.time}
                   className="flex h-28 w-[4.75rem] flex-col items-center gap-1 px-1.5 py-3 text-center text-white"
+                  title={description}
                 >
                   <span className="shrink-0 text-xs leading-none text-white/70">
                     {formatHour(item.time, timezone, locale, index === 0)}
                   </span>
-                  <span
-                    className="mt-2 h-8 w-full shrink-0 overflow-hidden text-center text-[11px] leading-4 text-white/55"
-                    title={description}
-                  >
-                    <span className="line-clamp-2">{description}</span>
-                  </span>
+                  <WeatherIcon
+                    code={item.weatherCode}
+                    locale={locale}
+                    isDay={item.isDay}
+                    size={28}
+                    className="mt-2"
+                  />
                   <span className="mt-auto shrink-0 text-lg font-medium leading-none">
                     {Math.round(item.temperature)}°
                   </span>

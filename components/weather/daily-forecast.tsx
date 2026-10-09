@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { DayForecastSheet } from "@/components/weather/day-forecast-sheet";
+import { WeatherIcon } from "@/components/weather/weather-icon";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/types";
 import { hoursForDate } from "@/lib/weather/hourly-window";
@@ -52,11 +53,16 @@ export function DailyForecast({
             <button
               type="button"
               onClick={() => setSelectedDate(item.date)}
-              className="grid w-full grid-cols-[4.5rem_1fr_auto] items-center gap-3 py-3 text-left text-white transition hover:bg-white/10 cursor-pointer"
+              className="grid w-full grid-cols-[4.5rem_auto_1fr_auto] items-center gap-3 py-3 text-left text-white transition hover:bg-white/10 cursor-pointer"
             >
               <span className="text-sm font-medium">
                 {formatDay(item.date, timezone, locale, index)}
               </span>
+              <WeatherIcon
+                code={item.weatherCode}
+                locale={locale}
+                size={26}
+              />
               <div className="min-w-0">
                 <p className="truncate text-sm text-white/80">
                   {getWeatherDescription(item.weatherCode, locale)}
