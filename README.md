@@ -2,6 +2,8 @@
 
 A small Next.js weather demo for searching places, saving cities, and viewing forecasts. Built to deploy free on Vercel with no API keys.
 
+中文说明见 [README.zh-CN.md](./README.zh-CN.md)。
+
 ## Demo
 
 Live demo: [https://next-weather-demo.vercel.app/](https://next-weather-demo.vercel.app/)
@@ -10,11 +12,13 @@ Live demo: [https://next-weather-demo.vercel.app/](https://next-weather-demo.ver
 
 - Favorites city list (iOS Weather–style cards)
 - Weather detail page with hourly + 7-day forecast
+- WMO weather icons next to condition text (current, hourly, daily, city cards)
 - Hourly forecast: list / temperature-curve tabs for the current day
-- 7-day forecast: tap a day to open a bottom sheet with that day’s temperature curve
+- 7-day forecast: tap a day to open a bottom sheet (viewport-anchored) with that day’s temperature curve
 - Localized city labels (`zh` / `en`) resolved by Open-Meteo location id (not fuzzy name search)
+- Global refresh on list and detail (left of the language switcher), with per-card / detail loading UI
 - Add / remove cities from the list (persisted in `localStorage`)
-- Location search via Open-Meteo Geocoding
+- Location search via Open-Meteo Geocoding (16px input to avoid iOS focus zoom)
 - Loading / error / retry states
 - Simplified Chinese and English (local dictionaries)
 - Responsive layout inspired by Apple Weather
@@ -32,6 +36,7 @@ Flow:
 2. Search a city → opens detail (does **not** auto-favorite).
 3. Tap ★ on detail to add/remove from the list.
 4. On the list, swipe a card left to delete.
+5. Use the refresh button to re-fetch weather; list cards and the detail page show loading while updating.
 
 ## Tech stack
 
@@ -52,6 +57,9 @@ Flow:
 - **No API key**: Open-Meteo keeps deploy/demo friction at zero.
 - **Local i18n only**: `zh` / `en` strings live in the repo.
 - **IPv4 HTTPS helper**: Server calls Open-Meteo via Node `https` with `family: 4` so geocoding does not hang on flaky IPv6 routes.
+- **Label resolve by id**: Locale switches look up `/v1/get?id=` so city names stay exact across languages.
+- **Full hourly series**: API keeps the full 7-day hourly series (including past hours today) so day curves are complete; the hourly list still shows the next 24 hours from “now”.
+- **Sheet via portal**: The day sheet mounts on `document.body` so `position: fixed` tracks the viewport, not a transformed ancestor.
 
 ## API contract
 
@@ -86,12 +94,13 @@ The client (`lib/api/client.ts`) throws `ApiError` when `code !== 0`. UI maps co
 ```
 app/                  Pages + Route Handlers
 components/cities/    Favorites list UI
-components/weather/   Detail weather panels
+components/weather/   Detail weather panels, curve, sheet, icons
+components/common/    Locale switcher, refresh, loading/error
 hooks/                TanStack Query hooks
 lib/api/              Response helpers + browser apiClient
 lib/open-meteo/       Upstream fetch + Zod schemas
 lib/i18n/             Local zh/en dictionaries
-lib/weather/          WMO codes, URL helpers, weather fetch
+lib/weather/          WMO codes/icons, hourly windows, URL helpers
 stores/               Zustand app store (favorites persist)
 types/                Shared API types
 ```
