@@ -68,7 +68,7 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
         placeholder={t(locale, "searchPlaceholder")}
         aria-controls={listId}
         aria-expanded={open}
-        className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white outline-none backdrop-blur-sm placeholder:text-white/50 focus:border-white/35 focus:bg-white/14"
+        className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-base text-white outline-none backdrop-blur-sm placeholder:text-white/50 focus:border-white/35 focus:bg-white/14"
       />
 
       {showRecent || showResults ? (
