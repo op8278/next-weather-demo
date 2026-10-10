@@ -8,6 +8,7 @@ export const en: Messages = {
   searchNoResults: "No locations found",
   loading: "Loading…",
   retry: "Try again",
+  refresh: "Refresh",
   errorGeneric: "Something went wrong",
   errorNetwork: "Network request failed",
   errorInvalidParams: "Invalid request",

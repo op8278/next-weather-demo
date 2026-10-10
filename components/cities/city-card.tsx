@@ -60,6 +60,8 @@ export function CityCard({
   const isDay = weather?.current.isDay ?? true;
   const background = getBackgroundGradient(mood, isDay);
   const today = weather?.daily[0];
+  const refreshing = weatherQuery.isFetching;
+  const initialLoading = weatherQuery.isLoading;
 
   // Parent owns which card is open; sync closed state back into local offset.
   useEffect(() => {
@@ -70,6 +72,13 @@ export function CityCard({
       updateOffset(-SWIPE_THRESHOLD);
     }
   }, [deleteOpen]);
+
+  // Keep the underlay delete button covered while the card is refreshing.
+  useEffect(() => {
+    if (refreshing && deleteOpen) {
+      closeDelete();
+    }
+  }, [refreshing, deleteOpen]);
 
   function closeDelete() {
     swiped.current = false;
@@ -141,7 +150,8 @@ export function CityCard({
         <div
           role="link"
           tabIndex={0}
-          className="block w-full cursor-pointer rounded-3xl px-5 py-4 text-left text-white shadow-sm"
+          aria-busy={refreshing}
+          className="relative block w-full cursor-pointer rounded-3xl px-5 py-4 text-left text-white shadow-sm"
           style={{ background }}
           onClick={() => {
             if (deleteOpen || offset !== 0 || swiped.current) {
@@ -163,7 +173,7 @@ export function CityCard({
                 {label.name}
               </h2>
               <p className="mt-0.5 flex items-center gap-1.5 text-sm text-white/75">
-                {weatherQuery.isLoading
+                {initialLoading
                   ? t(locale, "loading")
                   : weather
                     ? (
@@ -203,11 +213,24 @@ export function CityCard({
               {today ? `${Math.round(today.tempMin)}°` : "–"}
             </span>
           </div>
+
+          {refreshing ? (
+            <div
+              className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-3xl bg-black/40"
+              aria-hidden
+            >
+              <div className="h-7 w-7 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            </div>
+          ) : null}
         </div>
 
         <button
           type="button"
-          className="absolute bottom-3 right-3 hidden min-h-9 items-center rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white opacity-0 shadow-md transition hover:bg-red-600 group-hover:opacity-100 focus:opacity-100 sm:inline-flex cursor-pointer"
+          className={`absolute bottom-3 right-3 hidden min-h-9 items-center rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white shadow-md transition hover:bg-red-600 focus:opacity-100 sm:inline-flex cursor-pointer ${
+            refreshing
+              ? "pointer-events-none opacity-0"
+              : "opacity-0 group-hover:opacity-100"
+          }`}
           onClick={(event) => {
             event.stopPropagation();
             onRemove();

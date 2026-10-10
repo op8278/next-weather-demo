@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ErrorState } from "@/components/common/error-state";
 import { LoadingState } from "@/components/common/loading-state";
 import { LocaleSwitcher } from "@/components/common/locale-switcher";
+import { RefreshButton } from "@/components/common/refresh-button";
 import { CurrentWeather } from "@/components/weather/current-weather";
 import { DailyForecast } from "@/components/weather/daily-forecast";
 import { HourlyForecast } from "@/components/weather/hourly-forecast";
@@ -70,6 +71,8 @@ export function WeatherShell({ location }: WeatherShellProps) {
   const isDay = weather.data?.current.isDay ?? true;
   const background = getBackgroundGradient(mood, isDay);
   const favoriteBusy = favoritePending || (!favorited && !isReady);
+  const initialLoading = !hydrated || weather.isLoading;
+  const refreshing = weather.isFetching && Boolean(weather.data);
 
   return (
     <div
@@ -86,6 +89,7 @@ export function WeatherShell({ location }: WeatherShellProps) {
           </Link>
 
           <div className="flex items-center gap-2">
+            <RefreshButton />
             <button
               type="button"
               onClick={() => void handleToggleFavorite()}
@@ -106,12 +110,12 @@ export function WeatherShell({ location }: WeatherShellProps) {
           </div>
         </header>
 
-        <main className="mt-2 flex-1">
-          {!hydrated || weather.isLoading ? (
+        <main className="relative mt-2 flex-1">
+          {initialLoading ? (
             <LoadingState label={t(locale, "loading")} />
           ) : null}
 
-          {weather.isError ? (
+          {!initialLoading && weather.isError && !weather.data ? (
             <ErrorState
               message={getErrorMessage(locale, weather.error)}
               retryLabel={t(locale, "retry")}
@@ -120,7 +124,12 @@ export function WeatherShell({ location }: WeatherShellProps) {
           ) : null}
 
           {weather.data ? (
-            <>
+            <div
+              aria-busy={refreshing}
+              className={`transition-opacity duration-200 ${
+                refreshing ? "opacity-55" : "opacity-100"
+              }`}
+            >
               <CurrentWeather
                 locationName={
                   isResolving && !isReady ? `${label.name}…` : label.name
@@ -140,7 +149,23 @@ export function WeatherShell({ location }: WeatherShellProps) {
                 locale={locale}
                 timezone={weather.data.location.timezone}
               />
-            </>
+            </div>
+          ) : null}
+
+          {refreshing ? (
+            <div
+              className="pointer-events-none absolute inset-0 z-10 flex items-start justify-center pt-24"
+              aria-live="polite"
+              aria-label={t(locale, "loading")}
+            >
+              <div className="flex flex-col items-center gap-2 rounded-2xl bg-black/35 px-5 py-4 text-white backdrop-blur-sm">
+                <div
+                  className="h-7 w-7 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                  aria-hidden
+                />
+                <p className="text-xs text-white/80">{t(locale, "loading")}</p>
+              </div>
+            </div>
           ) : null}
         </main>
       </div>

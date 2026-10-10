@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { CityCard } from "@/components/cities/city-card";
 import { LocaleSwitcher } from "@/components/common/locale-switcher";
+import { RefreshButton } from "@/components/common/refresh-button";
 import { LocationSearch } from "@/components/search/location-search";
 import { useFavoriteWeathers } from "@/hooks/use-favorite-weathers";
 import { useResolveLocationLabels } from "@/hooks/use-resolve-location-labels";
@@ -50,7 +51,10 @@ export function CityList() {
           <h1 className="text-3xl font-semibold tracking-tight text-white">
             {t(locale, "citiesTitle")}
           </h1>
-          <LocaleSwitcher />
+          <div className="flex items-center gap-2">
+            <RefreshButton />
+            <LocaleSwitcher />
+          </div>
         </header>
 
         <div className="mt-5">

@@ -8,6 +8,7 @@ export const zh: Messages = {
   searchNoResults: "未找到相关地点",
   loading: "加载中…",
   retry: "重试",
+  refresh: "刷新",
   errorGeneric: "出了点问题",
   errorNetwork: "网络请求失败",
   errorInvalidParams: "请求参数无效",

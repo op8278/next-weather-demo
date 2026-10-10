@@ -8,6 +8,7 @@ export type MessageKey =
   | "searchNoResults"
   | "loading"
   | "retry"
+  | "refresh"
   | "errorGeneric"
   | "errorNetwork"
   | "errorInvalidParams"
