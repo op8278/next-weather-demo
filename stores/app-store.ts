@@ -24,6 +24,8 @@ type AppState = {
   favorites: SelectedLocation[];
   setLocale: (locale: Locale) => void;
   addRecent: (location: SelectedLocation) => void;
+  removeRecent: (id: number) => void;
+  clearRecent: () => void;
   toggleFavorite: (location: SelectedLocation) => void;
   removeFavorite: (id: number) => void;
   isFavorite: (id: number) => boolean;
@@ -86,6 +88,12 @@ export const useAppStore = create<AppState>()(
         ].slice(0, 5);
         set({ recent });
       },
+      removeRecent: (id) => {
+        set({
+          recent: get().recent.filter((item) => item.id !== id),
+        });
+      },
+      clearRecent: () => set({ recent: [] }),
       toggleFavorite: (location) => {
         const existing = get().favorites.find((item) => item.id === location.id);
         if (existing) {

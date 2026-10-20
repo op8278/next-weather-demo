@@ -26,6 +26,8 @@ export const zh: Messages = {
   now: "现在",
   precip: "降水",
   recent: "最近",
+  clearRecent: "清空历史",
+  removeRecent: "删除",
   language: "语言",
   favorite: "加入列表",
   unfavorite: "移出列表",

@@ -26,6 +26,8 @@ export const en: Messages = {
   now: "Now",
   precip: "Precip",
   recent: "Recent",
+  clearRecent: "Clear history",
+  removeRecent: "Remove",
   language: "Language",
   favorite: "Add to List",
   unfavorite: "Remove from List",

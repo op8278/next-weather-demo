@@ -26,6 +26,8 @@ export type MessageKey =
   | "now"
   | "precip"
   | "recent"
+  | "clearRecent"
+  | "removeRecent"
   | "language"
   | "favorite"
   | "unfavorite"

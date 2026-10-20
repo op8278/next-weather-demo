@@ -15,6 +15,8 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
   const locale = useAppStore((s) => s.locale);
   const recent = useAppStore((s) => s.recent);
   const addRecent = useAppStore((s) => s.addRecent);
+  const removeRecent = useAppStore((s) => s.removeRecent);
+  const clearRecent = useAppStore((s) => s.clearRecent);
 
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -101,19 +103,36 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
         >
           {showRecent ? (
             <div className="px-3 py-2">
-              <p className="px-1 pb-2 text-[11px] uppercase tracking-[0.14em] text-white/45">
-                {t(locale, "recent")}
-              </p>
+              <div className="flex items-center justify-between gap-2 px-1 pb-2">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-white/45">
+                  {t(locale, "recent")}
+                </p>
+                <button
+                  type="button"
+                  onClick={clearRecent}
+                  className="cursor-pointer text-xs text-white/55 transition hover:text-white/85"
+                >
+                  {t(locale, "clearRecent")}
+                </button>
+              </div>
               <ul>
                 {recent.map((item) => (
-                  <li key={item.id}>
+                  <li key={item.id} className="flex items-center gap-1">
                     <button
                       type="button"
                       role="option"
-                      className="w-full rounded-xl px-3 py-2.5 text-left text-sm text-white/90 transition hover:bg-white/10"
+                      className="min-w-0 flex-1 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 transition hover:bg-white/10 cursor-pointer"
                       onClick={() => selectLocation(item)}
                     >
                       {formatLocationLabel(getLocationLabel(item, locale))}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeRecent(item.id)}
+                      aria-label={t(locale, "removeRecent")}
+                      className="mr-1 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-white/45 transition hover:bg-white/10 hover:text-white/85"
+                    >
+                      <span className="-mt-px">×</span>
                     </button>
                   </li>
                 ))}
