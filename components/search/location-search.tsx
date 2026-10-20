@@ -23,6 +23,7 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
   // prevents an extra geocode when switching language.
   const geocode = useGeocode(debounced, locale, open);
   const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const listId = useId();
 
   useEffect(() => {
@@ -47,6 +48,12 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
     setOpen(false);
   }
 
+  function clearQuery() {
+    setQuery("");
+    setOpen(true);
+    inputRef.current?.focus();
+  }
+
   const showRecent = open && query.trim().length < 1 && recent.length > 0;
   const showResults = open && query.trim().length >= 1;
 
@@ -55,21 +62,36 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
       <label className="sr-only" htmlFor="location-search">
         {t(locale, "searchPlaceholder")}
       </label>
-      <input
-        id="location-search"
-        type="search"
-        autoComplete="off"
-        value={query}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-        placeholder={t(locale, "searchPlaceholder")}
-        aria-controls={listId}
-        aria-expanded={open}
-        className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-base text-white outline-none backdrop-blur-sm placeholder:text-white/50 focus:border-white/35 focus:bg-white/14"
-      />
+      <div className="relative w-full">
+        <input
+          ref={inputRef}
+          id="location-search"
+          type="search"
+          autoComplete="off"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          placeholder={t(locale, "searchPlaceholder")}
+          aria-controls={listId}
+          aria-expanded={open}
+          className={`w-full rounded-2xl border border-white/15 bg-white/10 py-3 pl-4 text-base text-white outline-none backdrop-blur-sm placeholder:text-white/50 focus:border-white/35 focus:bg-white/14 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden ${
+            query.length > 0 ? "pr-11" : "pr-4"
+          }`}
+        />
+        {query.length > 0 ? (
+          <button
+            type="button"
+            onClick={clearQuery}
+            aria-label={t(locale, "close")}
+            className="absolute right-2.5 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/18 text-xl leading-none text-white/85 transition hover:bg-white/28"
+          >
+            <span className="-mt-px">×</span>
+          </button>
+        ) : null}
+      </div>
 
       {showRecent || showResults ? (
         <div
