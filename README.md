@@ -8,6 +8,12 @@ A small Next.js weather demo for searching places, saving cities, and viewing fo
 
 Live demo: [https://next-weather-demo.vercel.app/](https://next-weather-demo.vercel.app/)
 
+## Mobile (React Native)
+
+Expo / React Native client (iOS-first), same product features, consuming this project’s production APIs:
+
+- Repo: [https://github.com/op8278/rn-weather-demo](https://github.com/op8278/rn-weather-demo)
+
 ## Features
 
 - Favorites city list (iOS Weather–style cards)

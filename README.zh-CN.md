@@ -8,6 +8,12 @@ English version: [README.md](./README.md)
 
 演示地址：[https://next-weather-demo.vercel.app/](https://next-weather-demo.vercel.app/)
 
+## 移动端（React Native）
+
+Expo / React Native 客户端（优先 iOS），功能对齐本项目，并调用本项目的线上 API：
+
+- 仓库：[https://github.com/op8278/rn-weather-demo](https://github.com/op8278/rn-weather-demo)
+
 ## 功能
 
 - iOS 天气风格的收藏城市列表
