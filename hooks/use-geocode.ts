@@ -1,6 +1,6 @@
 "use client";
 
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api/client";
 import type { Locale } from "@/lib/i18n/types";
 import type { GeocodeData } from "@/types/api";
@@ -25,8 +25,6 @@ export function useGeocode(
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     retry: 1,
-    // Avoid UI flicker / duplicate loading when locale or query tweaks.
-    placeholderData: keepPreviousData,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });

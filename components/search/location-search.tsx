@@ -105,21 +105,15 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
                 <p className="px-3 py-3 text-sm text-white/65">
                   {t(locale, "loading")}
                 </p>
-              ) : null}
-
-              {geocode.isError ? (
+              ) : geocode.isError ? (
                 <p className="px-3 py-3 text-sm text-white/75">
                   {getErrorMessage(locale, geocode.error)}
                 </p>
-              ) : null}
-
-              {geocode.isSuccess && geocode.data.results.length === 0 ? (
+              ) : geocode.isSuccess && geocode.data.results.length === 0 ? (
                 <p className="px-3 py-3 text-sm text-white/65">
                   {t(locale, "searchNoResults")}
                 </p>
-              ) : null}
-
-              {geocode.isSuccess ? (
+              ) : geocode.isSuccess ? (
                 <ul>
                   {geocode.data.results.map((item) => (
                     <li key={item.id}>
@@ -154,16 +148,11 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
                     </li>
                   ))}
                 </ul>
-              ) : null}
-
-              {!geocode.isFetching &&
-              !geocode.isError &&
-              !geocode.isSuccess &&
-              debounced.trim().length < 1 ? (
+              ) : (
                 <p className="px-3 py-3 text-sm text-white/65">
                   {t(locale, "searchEmpty")}
                 </p>
-              ) : null}
+              )}
             </div>
           ) : null}
         </div>
