@@ -5,7 +5,10 @@ import { URL } from "node:url";
  * Server-side GET that forces IPv4.
  * Node's default fetch can hang on some Open-Meteo AAAA records.
  */
-export function httpsGetJson(url: string): Promise<unknown> {
+export function httpsGetJson(
+  url: string,
+  headers?: Record<string, string>,
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const parsed = new URL(url);
     const req = https.get(
@@ -17,6 +20,7 @@ export function httpsGetJson(url: string): Promise<unknown> {
         headers: {
           Accept: "application/json",
           "User-Agent": "next-weather-demo",
+          ...headers,
         },
       },
       (res) => {

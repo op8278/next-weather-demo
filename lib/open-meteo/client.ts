@@ -8,6 +8,8 @@ import {
 
 const GEOCODE_SEARCH_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const GEOCODE_GET_URL = "https://geocoding-api.open-meteo.com/v1/get";
+const REVERSE_GEOCODE_URL =
+  "https://api.bigdatacloud.net/data/reverse-geocode-client";
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
 export class UpstreamError extends Error {
@@ -62,6 +64,73 @@ export async function searchLocations(
   return {
     results: (parsed.data.results ?? []).map(toLocationResult),
   };
+}
+
+function searchName(name: string) {
+  const simplified = name
+    .replace(/(特别行政区|市|省|區|区|縣|县)$/u, "")
+    .trim();
+  return simplified || name;
+}
+
+function distanceKm(
+  fromLat: number,
+  fromLon: number,
+  toLat: number,
+  toLon: number,
+) {
+  const earthRadiusKm = 6371;
+  const latDelta = ((toLat - fromLat) * Math.PI) / 180;
+  const lonDelta = ((toLon - fromLon) * Math.PI) / 180;
+  const fromLatRad = (fromLat * Math.PI) / 180;
+  const toLatRad = (toLat * Math.PI) / 180;
+  const a =
+    Math.sin(latDelta / 2) ** 2 +
+    Math.cos(fromLatRad) * Math.cos(toLatRad) * Math.sin(lonDelta / 2) ** 2;
+  return 2 * earthRadiusKm * Math.asin(Math.min(1, Math.sqrt(a)));
+}
+
+/** Nearest Open-Meteo place for a device coordinate. */
+export async function reverseGeocode(
+  latitude: number,
+  longitude: number,
+  language = "en",
+): Promise<GeocodeData> {
+  const url = new URL(REVERSE_GEOCODE_URL);
+  url.searchParams.set("latitude", String(latitude));
+  url.searchParams.set("longitude", String(longitude));
+  url.searchParams.set("localityLanguage", language);
+
+  let json: unknown;
+  try {
+    json = await httpsGetJson(url.toString());
+  } catch {
+    throw new UpstreamError("Failed to reach geocoding service");
+  }
+
+  const place =
+    json && typeof json === "object"
+      ? (json as { city?: unknown; locality?: unknown })
+      : null;
+  const placeName = [place?.city, place?.locality].find(
+    (value): value is string => typeof value === "string" && value.length > 0,
+  );
+
+  if (!placeName) {
+    return { results: [] };
+  }
+
+  const query = searchName(placeName);
+  const searched = await searchLocations(query, language);
+  const nearest = searched.results
+    .map((item) => ({
+      item,
+      distance: distanceKm(latitude, longitude, item.latitude, item.longitude),
+    }))
+    .filter((candidate) => candidate.distance <= 80)
+    .sort((a, b) => a.distance - b.distance)[0];
+
+  return { results: nearest ? [nearest.item] : [] };
 }
 
 /** Exact lookup by Open-Meteo / GeoNames location id (no fuzzy name match). */

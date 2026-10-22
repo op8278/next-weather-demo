@@ -2,6 +2,7 @@ import { ApiCode } from "@/lib/api/codes";
 import { fail, ok } from "@/lib/api/response";
 import {
   getLocationById,
+  reverseGeocode,
   searchLocations,
   UpstreamError,
 } from "@/lib/open-meteo/client";
@@ -14,10 +15,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const q = searchParams.get("q")?.trim() || undefined;
     const idParam = searchParams.get("id");
+    const latParam = searchParams.get("lat");
+    const lonParam = searchParams.get("lon");
 
     const parsed = geocodeQuerySchema.safeParse({
       q,
       id: idParam ?? undefined,
+      lat: latParam ?? undefined,
+      lon: lonParam ?? undefined,
       lang: searchParams.get("lang") ?? "en",
     });
 
@@ -34,6 +39,18 @@ export async function GET(request: Request) {
         return fail(ApiCode.LOCATION_NOT_FOUND, "Location not found");
       }
       return ok({ results: [location] });
+    }
+
+    if (parsed.data.lat != null && parsed.data.lon != null) {
+      const data = await reverseGeocode(
+        parsed.data.lat,
+        parsed.data.lon,
+        language,
+      );
+      if (data.results.length === 0) {
+        return fail(ApiCode.LOCATION_NOT_FOUND, "Location not found");
+      }
+      return ok(data);
     }
 
     const data = await searchLocations(parsed.data.q!, language);

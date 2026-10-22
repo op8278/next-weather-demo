@@ -25,8 +25,10 @@ type CityCardProps = {
   locale: Locale;
   deleteOpen: boolean;
   onDeleteOpenChange: (open: boolean) => void;
-  onRemove: () => void;
+  onRemove?: () => void;
   onNavigate?: () => void;
+  removable?: boolean;
+  badge?: string;
 };
 
 export function CityCard({
@@ -37,6 +39,8 @@ export function CityCard({
   onDeleteOpenChange,
   onRemove,
   onNavigate,
+  removable = true,
+  badge,
 }: CityCardProps) {
   const router = useRouter();
   const href = buildWeatherHref(location, locale);
@@ -93,7 +97,7 @@ export function CityCard({
   }
 
   function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== "touch") return;
+    if (!removable || event.pointerType !== "touch") return;
 
     startX.current = event.clientX;
     dragging.current = true;
@@ -130,14 +134,16 @@ export function CityCard({
 
   return (
     <div className="relative overflow-hidden rounded-3xl">
-      <button
-        type="button"
-        onClick={onRemove}
-        className="absolute inset-y-0 right-0 flex w-[72px] items-center justify-center rounded-3xl bg-red-500 text-sm font-medium text-white"
-        aria-label={t(locale, "removeCity")}
-      >
-        {t(locale, "removeCity")}
-      </button>
+      {removable ? (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="absolute inset-y-0 right-0 flex w-[72px] items-center justify-center rounded-3xl bg-red-500 text-sm font-medium text-white"
+          aria-label={t(locale, "removeCity")}
+        >
+          {t(locale, "removeCity")}
+        </button>
+      ) : null}
 
       <div
         className="group relative touch-pan-y transition-transform duration-200 ease-out"
@@ -169,6 +175,11 @@ export function CityCard({
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
+              {badge ? (
+                <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-white/55">
+                  {badge}
+                </p>
+              ) : null}
               <h2 className="truncate text-2xl font-medium tracking-tight">
                 {label.name}
               </h2>
@@ -224,20 +235,22 @@ export function CityCard({
           ) : null}
         </div>
 
-        <button
-          type="button"
-          className={`absolute bottom-3 right-3 hidden min-h-9 items-center rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white shadow-md transition hover:bg-red-600 focus:opacity-100 sm:inline-flex cursor-pointer ${
-            refreshing
-              ? "pointer-events-none opacity-0"
-              : "opacity-0 group-hover:opacity-100"
-          }`}
-          onClick={(event) => {
-            event.stopPropagation();
-            onRemove();
-          }}
-        >
-          {t(locale, "removeCity")}
-        </button>
+        {removable ? (
+          <button
+            type="button"
+            className={`absolute bottom-3 right-3 hidden min-h-9 items-center rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white shadow-md transition hover:bg-red-600 focus:opacity-100 sm:inline-flex cursor-pointer ${
+              refreshing
+                ? "pointer-events-none opacity-0"
+                : "opacity-0 group-hover:opacity-100"
+            }`}
+            onClick={(event) => {
+              event.stopPropagation();
+              onRemove?.();
+            }}
+          >
+            {t(locale, "removeCity")}
+          </button>
+        ) : null}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { CityCard } from "@/components/cities/city-card";
+import { CurrentLocationCard } from "@/components/cities/current-location-card";
 import { LocaleSwitcher } from "@/components/common/locale-switcher";
 import { RefreshButton } from "@/components/common/refresh-button";
 import { LocationSearch } from "@/components/search/location-search";
@@ -61,13 +62,19 @@ export function CityList() {
           <LocationSearch onSelect={handleSelect} />
         </div>
 
-        <main className="mt-6 flex-1">
+        <main className="mt-6 flex flex-1 flex-col gap-3">
+          {hydrated ? (
+            <CurrentLocationCard
+              locale={locale}
+              onNavigate={() => setOpenSwipeId(null)}
+            />
+          ) : null}
           {!hydrated ? (
             <p className="py-16 text-center text-sm text-white/60">
               {t(locale, "loading")}
             </p>
           ) : favorites.length === 0 ? (
-            <p className="px-2 py-16 text-center text-sm leading-relaxed text-white/65">
+            <p className="px-2 py-10 text-center text-sm leading-relaxed text-white/65">
               {t(locale, "emptyFavorites")}
             </p>
           ) : (

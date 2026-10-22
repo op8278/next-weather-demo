@@ -4,11 +4,17 @@ export const geocodeQuerySchema = z
   .object({
     q: z.string().trim().min(1).max(100).optional(),
     id: z.coerce.number().int().positive().optional(),
+    lat: z.coerce.number().min(-90).max(90).optional(),
+    lon: z.coerce.number().min(-180).max(180).optional(),
     lang: z.enum(["en", "zh"]).default("en"),
   })
-  .refine((value) => Boolean(value.q) || Boolean(value.id), {
-    message: "Either q or id is required",
-  });
+  .refine(
+    (value) =>
+      Boolean(value.q) ||
+      value.id != null ||
+      (value.lat != null && value.lon != null),
+    { message: "q, id, or lat/lon is required" },
+  );
 
 export const weatherQuerySchema = z.object({
   lat: z.coerce.number().min(-90).max(90),
