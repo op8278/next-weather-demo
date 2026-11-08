@@ -8,11 +8,12 @@ A small Next.js weather demo for searching places, saving cities, and viewing fo
 
 Live demo: [https://next-weather-demo.vercel.app/](https://next-weather-demo.vercel.app/)
 
-## Mobile (React Native)
+## Mobile clients
 
-Expo / React Native client (iOS-first), same product features, consuming this project’s production APIs:
+Same product features, consuming this project’s production APIs (iOS-first):
 
-- Repo: [https://github.com/op8278/rn-weather-demo](https://github.com/op8278/rn-weather-demo)
+- React Native (Expo): [https://github.com/op8278/rn-weather-demo](https://github.com/op8278/rn-weather-demo)
+- Flutter: [https://github.com/op8278/flutter_weather_demo](https://github.com/op8278/flutter_weather_demo)
 
 ## Features
 

@@ -8,11 +8,12 @@ English version: [README.md](./README.md)
 
 演示地址：[https://next-weather-demo.vercel.app/](https://next-weather-demo.vercel.app/)
 
-## 移动端（React Native）
+## 移动端客户端
 
-Expo / React Native 客户端（优先 iOS），功能对齐本项目，并调用本项目的线上 API：
+功能对齐本项目，并调用本项目的线上 API（优先 iOS）：
 
-- 仓库：[https://github.com/op8278/rn-weather-demo](https://github.com/op8278/rn-weather-demo)
+- React Native（Expo）：[https://github.com/op8278/rn-weather-demo](https://github.com/op8278/rn-weather-demo)
+- Flutter：[https://github.com/op8278/flutter_weather_demo](https://github.com/op8278/flutter_weather_demo)
 
 ## 功能
 
